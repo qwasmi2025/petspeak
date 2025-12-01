@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { RecordButton } from "@/components/RecordButton";
 import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { AnimalSelector } from "@/components/AnimalSelector";
-import { ResultsCard } from "@/components/ResultsCard";
+import { TranslationCard } from "@/components/TranslationCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { AnimalType, AnalyzeResponse } from "@shared/schema";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { RotateCcw, Save } from "lucide-react";
 
 export default function Home() {
   const [animalType, setAnimalType] = useState<AnimalType>("dog");
@@ -167,13 +168,45 @@ export default function Home() {
 
       <main className="flex flex-col items-center px-4 pt-8 max-w-lg mx-auto">
         {result ? (
-          <ResultsCard
-            result={result}
-            animalType={animalType}
-            onRecordAgain={handleRecordAgain}
-            onSave={handleSave}
-            isSaving={saveMutation.isPending}
-          />
+          <div className="w-full space-y-4">
+            <TranslationCard result={result} animalType={animalType} />
+            
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={handleRecordAgain}
+                data-testid="button-record-again"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Record Again
+              </Button>
+              {user && (
+                <Button
+                  className="flex-1"
+                  onClick={handleSave}
+                  disabled={saveMutation.isPending}
+                  data-testid="button-save"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {saveMutation.isPending ? "Saving..." : "Save"}
+                </Button>
+              )}
+            </div>
+            
+            {!user && (
+              <div className="text-center p-4 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Sign in to save this recording to your history
+                </p>
+                <Link href="/login" asChild>
+                  <Button variant="outline" size="sm" data-testid="button-signin-save">
+                    Sign In to Save
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <div className="mb-8 text-center">
