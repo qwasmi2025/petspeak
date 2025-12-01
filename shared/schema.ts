@@ -46,7 +46,6 @@ export const petSchema = z.object({
 export type Pet = z.infer<typeof petSchema>;
 
 export const analyzeRequestSchema = z.object({
-  animalType: z.enum(animalTypes),
   audioData: z.string(),
 });
 
@@ -75,6 +74,8 @@ export type Action = z.infer<typeof actionSchema>;
 export const analyzeResponseSchema = z.object({
   transcription: z.string(),
   translation: z.string(),
+  animalType: z.string(),
+  animalEmoji: z.string(),
   mood: z.enum(moodTypes),
   moodEmoji: z.string(),
   detectedNeed: z.enum(needTypes),

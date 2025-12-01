@@ -2,20 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { RecordButton } from "@/components/RecordButton";
 import { WaveformVisualizer } from "@/components/WaveformVisualizer";
-import { AnimalSelector } from "@/components/AnimalSelector";
 import { TranslationCard } from "@/components/TranslationCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { AnimalType, AnalyzeResponse } from "@shared/schema";
+import type { AnalyzeResponse } from "@shared/schema";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Save } from "lucide-react";
+import { RotateCcw, Save, Mic } from "lucide-react";
 
 export default function Home() {
-  const [animalType, setAnimalType] = useState<AnimalType>("dog");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -31,7 +29,7 @@ export default function Home() {
   } = useAudioRecorder();
 
   const analyzeMutation = useMutation({
-    mutationFn: async (data: { animalType: AnimalType; audioData: string }) => {
+    mutationFn: async (data: { audioData: string }) => {
       const response = await apiRequest("POST", "/api/analyze", data);
       return response as AnalyzeResponse;
     },
@@ -54,7 +52,7 @@ export default function Home() {
       
       const formData = new FormData();
       formData.append("audio", audioBlob, "recording.webm");
-      formData.append("animalType", animalType);
+      formData.append("animalType", result.animalType);
       formData.append("transcription", result.transcription);
       formData.append("detectedNeed", result.detectedNeed);
       formData.append("confidence", result.confidence.toString());
@@ -138,7 +136,7 @@ export default function Home() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = (reader.result as string).split(",")[1];
-        analyzeMutation.mutate({ animalType, audioData: base64 });
+        analyzeMutation.mutate({ audioData: base64 });
       };
       reader.readAsDataURL(audioBlob);
     }
@@ -146,7 +144,7 @@ export default function Home() {
     if (!audioBlob) {
       hasAnalyzed.current = false;
     }
-  }, [audioBlob, result, analyzeMutation.isPending, animalType]);
+  }, [audioBlob, result, analyzeMutation.isPending]);
 
   return (
     <div className="min-h-screen pb-20 bg-background">
@@ -169,7 +167,7 @@ export default function Home() {
       <main className="flex flex-col items-center px-4 pt-8 max-w-lg mx-auto">
         {result ? (
           <div className="w-full space-y-4">
-            <TranslationCard result={result} animalType={animalType} />
+            <TranslationCard result={result} />
             
             <div className="flex gap-3 pt-2">
               <Button
@@ -214,16 +212,15 @@ export default function Home() {
                 What does your pet want?
               </h2>
               <p className="text-muted-foreground">
-                Record your pet's sound and let AI interpret it
+                Tap to record - we'll detect the animal automatically
               </p>
             </div>
 
-            <div className="w-full flex justify-center mb-8">
-              <AnimalSelector 
-                value={animalType} 
-                onChange={setAnimalType}
-                disabled={isRecording || analyzeMutation.isPending}
-              />
+            <div className="flex flex-col items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mic className="w-4 h-4" />
+                <span>Works with dogs, cats, birds, and more</span>
+              </div>
             </div>
 
             <div className="relative mb-12">

@@ -22,6 +22,8 @@ export interface Action {
 export interface AnalysisResult {
   transcription: string;
   translation: string;
+  animalType: string;
+  animalEmoji: string;
   mood: string;
   moodEmoji: string;
   detectedNeed: string;
@@ -78,8 +80,7 @@ Translation style examples:
 };
 
 export async function analyzeAnimalSound(
-  audioBase64: string, 
-  animalType: string
+  audioBase64: string
 ): Promise<AnalysisResult> {
   const tempFile = path.join(os.tmpdir(), `recording-${Date.now()}.webm`);
   
@@ -94,30 +95,36 @@ export async function analyzeAnimalSound(
         file: audioStream,
         model: "whisper-1",
         language: "en",
-        prompt: `This is a ${animalType} making sounds. Describe the sounds you hear including barks, meows, chirps, whines, growls, or other animal vocalizations.`
+        prompt: `This is an animal making sounds. Describe the sounds you hear including barks, meows, chirps, whines, growls, squeaks, or other animal vocalizations. Identify the type of animal if possible.`
       });
       transcription = whisperResponse.text;
     } catch (whisperError) {
       console.log("Whisper transcription error (expected for non-speech audio):", whisperError);
-      transcription = `[${animalType} vocalization detected]`;
+      transcription = "[Animal vocalization detected]";
     }
     
-    const systemPrompt = animalPrompts[animalType] || animalPrompts.default;
-    
-    const analysisPrompt = `${systemPrompt}
+    const analysisPrompt = `You are an expert animal behaviorist and pet whisperer who can identify animals and translate their vocalizations into human speech.
 
-Audio description/transcription: "${transcription || `${animalType} making sounds`}"
+Audio description/transcription: "${transcription || "Animal making sounds"}"
 
-Based on this sound, provide:
-1. A fun, personality-filled translation of what the ${animalType} is "saying" in human words (1-2 sentences, use their voice/personality)
-2. The current mood with an appropriate emoji
-3. What need they're expressing
-4. A specific action the owner should take
-5. 2-3 relevant product recommendations for this situation
-6. 2-3 helpful tips
+Based on this sound:
+1. FIRST identify what type of animal this is (dog, cat, bird, hamster, guinea pig, rabbit, ferret, horse, cow, sheep, goat, chicken, duck, pig, or other)
+2. Provide a fun, personality-filled translation of what the animal is "saying" in human words (1-2 sentences)
+   - Dogs: excited, loyal, enthusiastic
+   - Cats: sassy, regal, demanding
+   - Birds: cheerful, chatty, dramatic
+   - Small pets: curious, squeaky, timid
+   - Farm animals: straightforward, practical
+3. Detect their current mood
+4. What need they're expressing
+5. A specific action the owner should take
+6. 2-3 relevant product recommendations
+7. 2-3 helpful tips
 
 You MUST respond with valid JSON in this exact format:
 {
+  "animalType": "the detected animal type (dog, cat, bird, hamster, etc.)",
+  "animalEmoji": "emoji representing the animal (🐕 for dog, 🐱 for cat, 🐦 for bird, etc.)",
   "translation": "The animal's 'speech' in human words with personality",
   "mood": "happy" | "excited" | "content" | "curious" | "anxious" | "scared" | "frustrated" | "lonely" | "urgent" | "neutral",
   "moodEmoji": "appropriate emoji for the mood",
@@ -163,6 +170,8 @@ You MUST respond with valid JSON in this exact format:
     return {
       transcription,
       translation: result.translation || "Your pet is trying to tell you something!",
+      animalType: result.animalType || "unknown",
+      animalEmoji: result.animalEmoji || "🐾",
       mood: result.mood || "neutral",
       moodEmoji: result.moodEmoji || "🐾",
       detectedNeed: result.detectedNeed || "unknown",

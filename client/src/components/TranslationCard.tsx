@@ -6,17 +6,7 @@ import type { AnalyzeResponse, ProductRecommendation } from "@shared/schema";
 
 interface TranslationCardProps {
   result: AnalyzeResponse;
-  animalType: string;
 }
-
-const animalIcons: Record<string, string> = {
-  dog: "🐕",
-  cat: "🐱",
-  bird: "🐦",
-  hamster: "🐹",
-  rabbit: "🐰",
-  other: "🐾",
-};
 
 const categoryIcons: Record<string, string> = {
   food: "🍖",
@@ -25,8 +15,7 @@ const categoryIcons: Record<string, string> = {
   health: "💊",
 };
 
-export function TranslationCard({ result, animalType }: TranslationCardProps) {
-  const animalEmoji = animalIcons[animalType] || "🐾";
+export function TranslationCard({ result }: TranslationCardProps) {
 
   return (
     <div className="space-y-4" data-testid="translation-card">
@@ -35,8 +24,13 @@ export function TranslationCard({ result, animalType }: TranslationCardProps) {
         <Card className="relative bg-primary text-primary-foreground overflow-visible">
           <CardContent className="pt-6 pb-4">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">{animalEmoji}</div>
+              <div className="text-3xl" data-testid="animal-emoji">{result.animalEmoji}</div>
               <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground capitalize" data-testid="animal-type">
+                    {result.animalType}
+                  </Badge>
+                </div>
                 <p className="text-lg font-medium leading-relaxed" data-testid="translation-text">
                   "{result.translation}"
                 </p>
