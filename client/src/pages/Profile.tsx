@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, User, Mail, Calendar, TrendingUp } from "lucide-react";
+import { LogOut, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { format, parseISO } from "date-fns";
 import type { Recording } from "@shared/schema";
 
 export default function Profile() {
-  const { user, userProfile, signOut } = useAuth();
+  const { user, userProfile, signOut, loading } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
@@ -20,6 +21,12 @@ export default function Profile() {
     queryKey: ["/api/recordings"],
     enabled: !!user,
   });
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [loading, user, navigate]);
 
   const handleSignOut = async () => {
     try {
@@ -34,8 +41,15 @@ export default function Profile() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   if (!user || !userProfile) {
-    navigate("/login");
     return null;
   }
 
