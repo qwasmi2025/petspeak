@@ -52,11 +52,36 @@ export const analyzeRequestSchema = z.object({
 
 export type AnalyzeRequest = z.infer<typeof analyzeRequestSchema>;
 
+export const moodTypes = ["happy", "excited", "content", "curious", "anxious", "scared", "frustrated", "lonely", "urgent", "neutral"] as const;
+export type MoodType = typeof moodTypes[number];
+
+export const productRecommendationSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  category: z.string(),
+});
+
+export type ProductRecommendation = z.infer<typeof productRecommendationSchema>;
+
+export const actionSchema = z.object({
+  icon: z.string(),
+  title: z.string(),
+  description: z.string(),
+  urgent: z.boolean().default(false),
+});
+
+export type Action = z.infer<typeof actionSchema>;
+
 export const analyzeResponseSchema = z.object({
   transcription: z.string(),
+  translation: z.string(),
+  mood: z.enum(moodTypes),
+  moodEmoji: z.string(),
   detectedNeed: z.enum(needTypes),
   confidence: z.number(),
+  action: actionSchema,
   tips: z.array(z.string()),
+  products: z.array(productRecommendationSchema),
 });
 
 export type AnalyzeResponse = z.infer<typeof analyzeResponseSchema>;

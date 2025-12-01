@@ -6,42 +6,75 @@ import os from "os";
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+export interface ProductRecommendation {
+  name: string;
+  description: string;
+  category: string;
+}
+
+export interface Action {
+  icon: string;
+  title: string;
+  description: string;
+  urgent: boolean;
+}
+
 export interface AnalysisResult {
   transcription: string;
+  translation: string;
+  mood: string;
+  moodEmoji: string;
   detectedNeed: string;
   confidence: number;
+  action: Action;
   tips: string[];
+  products: ProductRecommendation[];
 }
 
 const animalPrompts: Record<string, string> = {
-  dog: `You are an expert in canine behavior and communication. Analyze the following audio transcription/description of a dog's vocalization and determine what the dog is trying to communicate.
+  dog: `You are an expert dog whisperer who can translate dog vocalizations into human speech. Analyze the sound and translate it as if the dog is speaking to their human.
 
 Common dog vocalizations:
-- Barking: Can indicate excitement, alerting, fear, seeking attention, playfulness
-- Whining/Whimpering: Often indicates stress, anxiety, wanting something, submission, or pain
-- Growling: Warning, fear, or playful (context dependent)
-- Howling: Communication, loneliness, response to sounds
-- Yelping: Sudden pain or fear`,
+- Barking: excitement, alerting, fear, attention seeking, playfulness
+- Whining: stress, anxiety, wanting something, submission, or pain
+- Growling: warning, fear, or playful
+- Howling: communication, loneliness, response to sounds
+- Yelping: sudden pain or fear
 
-  cat: `You are an expert in feline behavior and communication. Analyze the following audio transcription/description of a cat's vocalization and determine what the cat is trying to communicate.
+Translation style examples:
+- Excited bark → "Oh boy oh boy! You're home! This is the BEST day ever!"
+- Whine → "Please... I really need something... can you help me?"
+- Growl → "Hey, back off! I'm not comfortable with this."`,
+
+  cat: `You are an expert cat whisperer who can translate cat vocalizations into human speech. Analyze the sound and translate it as if the cat is speaking to their human (cats are often sassy and regal).
 
 Common cat vocalizations:
-- Meowing: Greeting, attention seeking, hunger, complaint
-- Purring: Content, self-soothing, sometimes pain
-- Hissing/Growling: Fear, aggression, warning
-- Chirping/Chattering: Excitement, hunting instinct
-- Yowling: Mating, territorial, distress`,
+- Meowing: greeting, attention seeking, hunger, complaint
+- Purring: content, self-soothing, sometimes pain
+- Hissing: fear, aggression, warning
+- Chirping: excitement, hunting instinct
+- Yowling: mating, territorial, distress
 
-  bird: `You are an expert in avian behavior and communication. Analyze the following audio transcription/description of a bird's vocalization and determine what the bird is trying to communicate.
+Translation style examples:
+- Demanding meow → "Excuse me, human. My food bowl appears to be at an unacceptable level."
+- Purring → "Mmm, this is acceptable. You may continue petting me."
+- Chirp → "Look! A bird! I could totally catch that if this window wasn't here!"`,
+
+  bird: `You are an expert bird whisperer who can translate bird vocalizations into human speech. Analyze the sound and translate it as if the bird is speaking (birds are often cheerful and chatty).
 
 Common bird vocalizations:
-- Singing: Territory marking, mating, happiness
-- Chirping: Communication, alerting
-- Screaming: Attention, fear, excitement
-- Talking/Mimicking: Social interaction
-- Quiet clicking: Content, curious`,
+- Singing: territory, mating, happiness
+- Chirping: communication, alerting
+- Screaming: attention, fear, excitement
+- Talking: social interaction
+- Clicking: content, curious
 
-  default: `You are an expert in animal behavior and communication. Analyze the following audio transcription/description of an animal's vocalization and determine what the animal is trying to communicate.`
+Translation style examples:
+- Happy chirp → "What a beautiful day! La la la! Look at me!"
+- Loud squawk → "HEY! Pay attention to me RIGHT NOW!"
+- Singing → "This is MY house! I'm the prettiest bird here!"`,
+
+  default: `You are an expert animal whisperer who can translate animal vocalizations into human speech. Analyze the sound and translate it as if the animal is speaking to their human.`
 };
 
 export async function analyzeAnimalSound(
@@ -75,16 +108,32 @@ export async function analyzeAnimalSound(
 
 Audio description/transcription: "${transcription || `${animalType} making sounds`}"
 
-Based on this sound, determine:
-1. What need or emotion is the animal expressing?
-2. How confident are you in this assessment (0-100)?
-3. What are 3-4 helpful tips for the owner based on this interpretation?
+Based on this sound, provide:
+1. A fun, personality-filled translation of what the ${animalType} is "saying" in human words (1-2 sentences, use their voice/personality)
+2. The current mood with an appropriate emoji
+3. What need they're expressing
+4. A specific action the owner should take
+5. 2-3 relevant product recommendations for this situation
+6. 2-3 helpful tips
 
 You MUST respond with valid JSON in this exact format:
 {
+  "translation": "The animal's 'speech' in human words with personality",
+  "mood": "happy" | "excited" | "content" | "curious" | "anxious" | "scared" | "frustrated" | "lonely" | "urgent" | "neutral",
+  "moodEmoji": "appropriate emoji for the mood",
   "detectedNeed": "hungry" | "playful" | "stressed" | "tired" | "attention" | "happy" | "anxious" | "territorial" | "pain" | "unknown",
   "confidence": <number between 0 and 100>,
-  "tips": ["tip 1", "tip 2", "tip 3"]
+  "action": {
+    "icon": "emoji for the action (like 🍖 for food, 🚶 for walk, 🎾 for play, 🤗 for comfort, 🏥 for vet)",
+    "title": "Short action title like 'Time for food!' or 'Play time!'",
+    "description": "Brief description of what to do",
+    "urgent": false
+  },
+  "tips": ["tip 1", "tip 2", "tip 3"],
+  "products": [
+    {"name": "Product name", "description": "Why this helps", "category": "food/toys/comfort/health"},
+    {"name": "Product name", "description": "Why this helps", "category": "food/toys/comfort/health"}
+  ]
 }`;
 
     const response = await openai.chat.completions.create({
@@ -106,9 +155,19 @@ You MUST respond with valid JSON in this exact format:
     
     return {
       transcription,
+      translation: result.translation || "Your pet is trying to tell you something!",
+      mood: result.mood || "neutral",
+      moodEmoji: result.moodEmoji || "🐾",
       detectedNeed: result.detectedNeed || "unknown",
       confidence: Math.min(100, Math.max(0, result.confidence || 50)),
+      action: result.action || {
+        icon: "👀",
+        title: "Observe your pet",
+        description: "Watch for more signals to understand what they need",
+        urgent: false
+      },
       tips: result.tips || ["Observe your pet's behavior", "Ensure basic needs are met", "Consult a vet if concerned"],
+      products: result.products || [],
     };
   } finally {
     if (fs.existsSync(tempFile)) {
