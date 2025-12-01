@@ -136,18 +136,25 @@ You MUST respond with valid JSON in this exact format:
   ]
 }`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-5",
-      messages: [
-        { role: "system", content: "You are an expert animal behaviorist. Always respond with valid JSON only." },
-        { role: "user", content: analysisPrompt }
-      ],
-      response_format: { type: "json_object" },
-      max_completion_tokens: 1024,
-    });
+    let response;
+    try {
+      response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "You are an expert animal behaviorist. Always respond with valid JSON only." },
+          { role: "user", content: analysisPrompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1024,
+      });
+    } catch (apiError: any) {
+      console.error("OpenAI API error:", apiError.message);
+      throw new Error(`OpenAI API error: ${apiError.message}`);
+    }
 
-    const content = response.choices[0].message.content;
+    const content = response.choices[0]?.message?.content;
     if (!content) {
+      console.error("No content in response:", JSON.stringify(response));
       throw new Error("No response from AI");
     }
 
