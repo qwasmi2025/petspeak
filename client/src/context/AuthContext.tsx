@@ -32,9 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(firebaseUser);
       
       if (firebaseUser) {
-        const profileDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-        if (profileDoc.exists()) {
-          setUserProfile(profileDoc.data() as UserProfile);
+        try {
+          const profileDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+          if (profileDoc.exists()) {
+            setUserProfile(profileDoc.data() as UserProfile);
+          }
+        } catch (error) {
+          console.warn("Could not fetch user profile (offline?):", error);
         }
       } else {
         setUserProfile(null);
