@@ -1,5 +1,8 @@
 # PetSpeak - Animal Sound Recognition Application
 
+## Production Domain
+**Live URL:** https://pettokai.com
+
 ## Overview
 
 PetSpeak is a mobile-first web application that uses AI to analyze and interpret animal vocalizations. Users can record their pet's sounds, receive instant AI-powered analysis of what their pet might be communicating. The application features a futuristic AI-style interface with animated green dots background, glassmorphism cards, and dark theme.
