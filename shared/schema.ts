@@ -6,6 +6,22 @@ export type AnimalType = typeof animalTypes[number];
 export const needTypes = ["hungry", "playful", "stressed", "tired", "attention", "happy", "anxious", "territorial", "pain", "unknown"] as const;
 export type NeedType = typeof needTypes[number];
 
+export const languageCodes = ["en", "ar", "zh", "es", "fr", "de", "ja", "ko", "pt", "ru"] as const;
+export type LanguageCode = typeof languageCodes[number];
+
+export const languages: { code: LanguageCode; name: string; nativeName: string; flag: string }[] = [
+  { code: "en", name: "English", nativeName: "English", flag: "🇺🇸" },
+  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
+  { code: "zh", name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
+  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
+  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷" },
+  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
+  { code: "ja", name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
+  { code: "ko", name: "Korean", nativeName: "한국어", flag: "🇰🇷" },
+  { code: "pt", name: "Portuguese", nativeName: "Português", flag: "🇧🇷" },
+  { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
+];
+
 export const recordingSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -47,6 +63,7 @@ export type Pet = z.infer<typeof petSchema>;
 
 export const analyzeRequestSchema = z.object({
   audioData: z.string(),
+  language: z.enum(languageCodes).default("en"),
 });
 
 export type AnalyzeRequest = z.infer<typeof analyzeRequestSchema>;

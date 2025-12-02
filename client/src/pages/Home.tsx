@@ -3,18 +3,20 @@ import { useMutation } from "@tanstack/react-query";
 import { RecordButton } from "@/components/RecordButton";
 import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { TranslationCard } from "@/components/TranslationCard";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { AnalyzeResponse } from "@shared/schema";
+import type { AnalyzeResponse, LanguageCode } from "@shared/schema";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Save, Mic } from "lucide-react";
 
 export default function Home() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [language, setLanguage] = useState<LanguageCode>("en");
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -29,7 +31,7 @@ export default function Home() {
   } = useAudioRecorder();
 
   const analyzeMutation = useMutation({
-    mutationFn: async (data: { audioData: string }) => {
+    mutationFn: async (data: { audioData: string; language: LanguageCode }) => {
       const response = await apiRequest("POST", "/api/analyze", data);
       return response as AnalyzeResponse;
     },
@@ -136,7 +138,7 @@ export default function Home() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = (reader.result as string).split(",")[1];
-        analyzeMutation.mutate({ audioData: base64 });
+        analyzeMutation.mutate({ audioData: base64, language });
       };
       reader.readAsDataURL(audioBlob);
     }
@@ -144,7 +146,7 @@ export default function Home() {
     if (!audioBlob) {
       hasAnalyzed.current = false;
     }
-  }, [audioBlob, result, analyzeMutation.isPending]);
+  }, [audioBlob, result, analyzeMutation.isPending, language]);
 
   return (
     <div className="min-h-screen pb-20 bg-background">
@@ -207,13 +209,21 @@ export default function Home() {
           </div>
         ) : (
           <>
-            <div className="mb-8 text-center">
+            <div className="mb-6 text-center">
               <h2 className="text-2xl md:text-3xl font-bold font-serif mb-2">
                 What does your pet want?
               </h2>
               <p className="text-muted-foreground">
                 Tap to record - we'll detect the animal automatically
               </p>
+            </div>
+
+            <div className="w-full mb-6">
+              <LanguageSelector
+                value={language}
+                onChange={setLanguage}
+                disabled={isRecording || analyzeMutation.isPending}
+              />
             </div>
 
             <div className="flex flex-col items-center gap-2 mb-4">

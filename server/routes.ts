@@ -24,9 +24,9 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid request", details: parsed.error.errors });
       }
       
-      const { audioData } = parsed.data;
+      const { audioData, language } = parsed.data;
       
-      const result = await analyzeAnimalSound(audioData);
+      const result = await analyzeAnimalSound(audioData, language);
       
       res.json(result);
     } catch (error) {

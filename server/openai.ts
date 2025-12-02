@@ -79,9 +79,24 @@ Translation style examples:
   default: `You are an expert animal whisperer who can translate animal vocalizations into human speech. Analyze the sound and translate it as if the animal is speaking to their human.`
 };
 
+const languageNames: Record<string, string> = {
+  en: "English",
+  ar: "Arabic",
+  zh: "Chinese (Simplified)",
+  es: "Spanish",
+  fr: "French",
+  de: "German",
+  ja: "Japanese",
+  ko: "Korean",
+  pt: "Portuguese",
+  ru: "Russian",
+};
+
 export async function analyzeAnimalSound(
-  audioBase64: string
+  audioBase64: string,
+  language: string = "en"
 ): Promise<AnalysisResult> {
+  const targetLanguage = languageNames[language] || "English";
   const tempFile = path.join(os.tmpdir(), `recording-${Date.now()}.webm`);
   
   try {
@@ -107,9 +122,11 @@ export async function analyzeAnimalSound(
 
 Audio description/transcription: "${transcription || "Animal making sounds"}"
 
+IMPORTANT: All text output (translation, action title, action description, tips, and product descriptions) MUST be in ${targetLanguage}.
+
 Based on this sound:
 1. FIRST identify what type of animal this is (dog, cat, bird, hamster, guinea pig, rabbit, ferret, horse, cow, sheep, goat, chicken, duck, pig, or other)
-2. Provide a fun, personality-filled translation of what the animal is "saying" in human words (1-2 sentences)
+2. Provide a fun, personality-filled translation of what the animal is "saying" in human words (1-2 sentences) - IN ${targetLanguage}
    - Dogs: excited, loyal, enthusiastic
    - Cats: sassy, regal, demanding
    - Birds: cheerful, chatty, dramatic
@@ -117,29 +134,29 @@ Based on this sound:
    - Farm animals: straightforward, practical
 3. Detect their current mood
 4. What need they're expressing
-5. A specific action the owner should take
-6. 2-3 relevant product recommendations
-7. 2-3 helpful tips
+5. A specific action the owner should take (IN ${targetLanguage})
+6. 2-3 relevant product recommendations (IN ${targetLanguage})
+7. 2-3 helpful tips (IN ${targetLanguage})
 
-You MUST respond with valid JSON in this exact format:
+You MUST respond with valid JSON in this exact format (ALL TEXT FIELDS IN ${targetLanguage}):
 {
-  "animalType": "the detected animal type (dog, cat, bird, hamster, etc.)",
+  "animalType": "the detected animal type in English (dog, cat, bird, hamster, etc.)",
   "animalEmoji": "emoji representing the animal (🐕 for dog, 🐱 for cat, 🐦 for bird, etc.)",
-  "translation": "The animal's 'speech' in human words with personality",
+  "translation": "The animal's 'speech' IN ${targetLanguage} with personality",
   "mood": "happy" | "excited" | "content" | "curious" | "anxious" | "scared" | "frustrated" | "lonely" | "urgent" | "neutral",
   "moodEmoji": "appropriate emoji for the mood",
   "detectedNeed": "hungry" | "playful" | "stressed" | "tired" | "attention" | "happy" | "anxious" | "territorial" | "pain" | "unknown",
   "confidence": <number between 0 and 100>,
   "action": {
     "icon": "emoji for the action (like 🍖 for food, 🚶 for walk, 🎾 for play, 🤗 for comfort, 🏥 for vet)",
-    "title": "Short action title like 'Time for food!' or 'Play time!'",
-    "description": "Brief description of what to do",
+    "title": "Short action title IN ${targetLanguage}",
+    "description": "Brief description of what to do IN ${targetLanguage}",
     "urgent": false
   },
-  "tips": ["tip 1", "tip 2", "tip 3"],
+  "tips": ["tip 1 IN ${targetLanguage}", "tip 2 IN ${targetLanguage}", "tip 3 IN ${targetLanguage}"],
   "products": [
-    {"name": "Product name", "description": "Why this helps", "category": "food/toys/comfort/health"},
-    {"name": "Product name", "description": "Why this helps", "category": "food/toys/comfort/health"}
+    {"name": "Product name", "description": "Why this helps IN ${targetLanguage}", "category": "food/toys/comfort/health"},
+    {"name": "Product name", "description": "Why this helps IN ${targetLanguage}", "category": "food/toys/comfort/health"}
   ]
 }`;
 
