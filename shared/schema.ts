@@ -43,6 +43,8 @@ export const userProfileSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   displayName: z.string().optional(),
+  photoURL: z.string().optional(),
+  credits: z.number().default(100),
   isAdmin: z.boolean().default(false),
   createdAt: z.string(),
 });

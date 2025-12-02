@@ -5,20 +5,21 @@ import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { TranslationCard } from "@/components/TranslationCard";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Badge } from "@/components/ui/badge";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
 import type { AnalyzeResponse, LanguageCode } from "@shared/schema";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Save, Mic } from "lucide-react";
+import { RotateCcw, Mic, Coins } from "lucide-react";
 
 export default function Home() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [language, setLanguage] = useState<LanguageCode>("en");
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, userProfile, useCredit, refreshProfile, loading } = useAuth();
   
   const {
     isRecording,
@@ -32,6 +33,13 @@ export default function Home() {
 
   const analyzeMutation = useMutation({
     mutationFn: async (data: { audioData: string; language: LanguageCode }) => {
+      if (user && userProfile) {
+        const success = await useCredit();
+        if (!success) {
+          throw new Error("Could not deduct credit. Please try again.");
+        }
+      }
+      
       const response = await apiRequest("POST", "/api/analyze", data);
       return response as AnalyzeResponse;
     },
@@ -48,53 +56,35 @@ export default function Home() {
     },
   });
 
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      if (!result || !audioBlob || !user) throw new Error("No result to save");
-      
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.webm");
-      formData.append("animalType", result.animalType);
-      formData.append("transcription", result.transcription);
-      formData.append("detectedNeed", result.detectedNeed);
-      formData.append("confidence", result.confidence.toString());
-      formData.append("tips", JSON.stringify(result.tips));
-      
-      const response = await fetch("/api/recordings", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "x-user-id": user.uid,
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to save recording");
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Saved!",
-        description: "Recording saved to your history.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/recordings"] });
-      handleRecordAgain();
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Save failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
   const handleToggleRecording = async () => {
     if (isRecording) {
       stopRecording();
     } else {
+      if (user && loading) {
+        toast({
+          title: "Please wait",
+          description: "Loading your account...",
+        });
+        return;
+      }
+      
+      if (user && userProfile && userProfile.credits <= 0) {
+        toast({
+          title: "No credits remaining",
+          description: "You've used all your credits. Contact support for more.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (user && !userProfile) {
+        toast({
+          title: "Please wait",
+          description: "Loading your credits...",
+        });
+        return;
+      }
+      
       try {
         setResult(null);
         await startRecording();
@@ -111,17 +101,6 @@ export default function Home() {
   const handleRecordAgain = () => {
     setResult(null);
     resetRecording();
-  };
-
-  const handleSave = () => {
-    if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to save recordings to your history.",
-      });
-      return;
-    }
-    saveMutation.mutate();
   };
 
   const formatDuration = (seconds: number) => {
@@ -148,12 +127,24 @@ export default function Home() {
     }
   }, [audioBlob, result, analyzeMutation.isPending, language]);
 
+  useEffect(() => {
+    if (user) {
+      refreshProfile();
+    }
+  }, [user]);
+
   return (
     <div className="min-h-screen pb-20 bg-background">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
           <h1 className="text-xl font-bold font-serif text-primary">PetSpeak</h1>
           <div className="flex items-center gap-2">
+            {user && userProfile && (
+              <Badge variant="secondary" className="gap-1" data-testid="badge-credits">
+                <Coins className="w-3 h-3" />
+                {userProfile.credits}
+              </Badge>
+            )}
             {!user && (
               <Link href="/login" asChild>
                 <Button variant="ghost" size="sm" data-testid="button-login-header">
@@ -181,27 +172,16 @@ export default function Home() {
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Record Again
               </Button>
-              {user && (
-                <Button
-                  className="flex-1"
-                  onClick={handleSave}
-                  disabled={saveMutation.isPending}
-                  data-testid="button-save"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {saveMutation.isPending ? "Saving..." : "Save"}
-                </Button>
-              )}
             </div>
             
             {!user && (
               <div className="text-center p-4 rounded-lg bg-muted/50">
                 <p className="text-sm text-muted-foreground mb-2">
-                  Sign in to save this recording to your history
+                  Sign in to get 100 free credits
                 </p>
                 <Link href="/login" asChild>
                   <Button variant="outline" size="sm" data-testid="button-signin-save">
-                    Sign In to Save
+                    Sign In with Google
                   </Button>
                 </Link>
               </div>
@@ -253,14 +233,25 @@ export default function Home() {
               <WaveformVisualizer data={waveformData} isRecording={isRecording} />
             </div>
 
+            {user && userProfile && userProfile.credits <= 0 && (
+              <div className="mt-8 text-center p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                <p className="text-sm text-destructive font-medium mb-1">
+                  No credits remaining
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Contact support to get more credits
+                </p>
+              </div>
+            )}
+
             {!user && (
               <div className="mt-12 text-center p-4 rounded-lg bg-muted/50">
                 <p className="text-sm text-muted-foreground mb-2">
-                  Sign in to save recordings and access your history
+                  Sign in to get 100 free credits
                 </p>
                 <Link href="/login" asChild>
                   <Button variant="outline" size="sm" data-testid="button-signin-prompt">
-                    Create an account
+                    Sign In with Google
                   </Button>
                 </Link>
               </div>

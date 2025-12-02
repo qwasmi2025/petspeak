@@ -1,4 +1,4 @@
-import { Home, Clock, User, Settings } from "lucide-react";
+import { Home, User, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -9,7 +9,6 @@ export function BottomNav() {
   
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
-    { path: "/history", icon: Clock, label: "History" },
     { path: user ? "/profile" : "/login", icon: User, label: user ? "Profile" : "Login" },
     ...(isAdmin ? [{ path: "/admin", icon: Settings, label: "Admin" }] : []),
   ];
