@@ -4,10 +4,10 @@ import { RecordButton } from "@/components/RecordButton";
 import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { TranslationCard } from "@/components/TranslationCard";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { getTranslation } from "@/lib/translations";
 import type { AnalyzeResponse, LanguageCode } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Mic } from "lucide-react";
@@ -16,6 +16,7 @@ export default function Home() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [language, setLanguage] = useState<LanguageCode>("en");
   const { toast } = useToast();
+  const t = getTranslation(language);
   
   const {
     isRecording,
@@ -37,8 +38,8 @@ export default function Home() {
     },
     onError: (error: Error) => {
       toast({
-        title: "Analysis failed",
-        description: error.message || "Could not analyze the audio. Please try again.",
+        title: t.analysisFailed,
+        description: error.message || t.couldNotAnalyze,
         variant: "destructive",
       });
       resetRecording();
@@ -54,8 +55,8 @@ export default function Home() {
         await startRecording();
       } catch (error) {
         toast({
-          title: "Microphone access denied",
-          description: "Please allow microphone access to record pet sounds.",
+          title: t.microphoneDenied,
+          description: t.allowMicrophone,
           variant: "destructive",
         });
       }
@@ -91,19 +92,20 @@ export default function Home() {
     }
   }, [audioBlob, result, analyzeMutation.isPending, language]);
 
+  const isRTL = language === "ar";
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" dir={isRTL ? "rtl" : "ltr"}>
       <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
-          <h1 className="text-xl font-bold font-serif text-primary">PetSpeak</h1>
-          <ThemeToggle />
+          <h1 className="text-xl font-bold font-serif text-primary">{t.title}</h1>
         </div>
       </header>
 
       <main className="flex flex-col items-center px-4 pt-8 pb-8 max-w-lg mx-auto">
         {result ? (
           <div className="w-full space-y-4">
-            <TranslationCard result={result} />
+            <TranslationCard result={result} language={language} />
             
             <div className="flex gap-3 pt-2">
               <Button
@@ -113,7 +115,7 @@ export default function Home() {
                 data-testid="button-record-again"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
-                Record Again
+                {t.recordAgain}
               </Button>
             </div>
           </div>
@@ -121,10 +123,10 @@ export default function Home() {
           <>
             <div className="mb-6 text-center">
               <h2 className="text-2xl md:text-3xl font-bold font-serif mb-2 text-white">
-                What does your pet want?
+                {t.whatDoesYourPetWant}
               </h2>
               <p className="text-gray-400">
-                Tap to record - we'll detect the animal automatically
+                {t.tapToRecord}
               </p>
             </div>
 
@@ -139,7 +141,7 @@ export default function Home() {
             <div className="flex flex-col items-center gap-2 mb-4">
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Mic className="w-4 h-4" />
-                <span>Works with dogs, cats, birds, and more</span>
+                <span>{t.worksWithPets}</span>
               </div>
             </div>
 
@@ -148,6 +150,7 @@ export default function Home() {
                 isRecording={isRecording}
                 isAnalyzing={analyzeMutation.isPending}
                 onToggle={handleToggleRecording}
+                language={language}
               />
             </div>
 

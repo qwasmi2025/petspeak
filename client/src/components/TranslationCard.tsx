@@ -2,10 +2,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { MessageCircle, Volume2, AlertTriangle, ShoppingBag } from "lucide-react";
-import type { AnalyzeResponse, ProductRecommendation } from "@shared/schema";
+import { getTranslation } from "@/lib/translations";
+import type { AnalyzeResponse, ProductRecommendation, LanguageCode } from "@shared/schema";
 
 interface TranslationCardProps {
   result: AnalyzeResponse;
+  language: LanguageCode;
 }
 
 const categoryIcons: Record<string, string> = {
@@ -15,7 +17,34 @@ const categoryIcons: Record<string, string> = {
   health: "💊",
 };
 
-export function TranslationCard({ result }: TranslationCardProps) {
+const urgentText: Record<LanguageCode, string> = {
+  en: "Urgent",
+  ar: "عاجل",
+  zh: "紧急",
+  es: "Urgente",
+  fr: "Urgent",
+  de: "Dringend",
+  ja: "緊急",
+  ko: "긴급",
+  pt: "Urgente",
+  ru: "Срочно",
+};
+
+const recommendedProductsText: Record<LanguageCode, string> = {
+  en: "Recommended Products",
+  ar: "المنتجات الموصى بها",
+  zh: "推荐产品",
+  es: "Productos recomendados",
+  fr: "Produits recommandés",
+  de: "Empfohlene Produkte",
+  ja: "おすすめ商品",
+  ko: "추천 제품",
+  pt: "Produtos recomendados",
+  ru: "Рекомендуемые товары",
+};
+
+export function TranslationCard({ result, language }: TranslationCardProps) {
+  const t = getTranslation(language);
 
   return (
     <div className="space-y-4" data-testid="translation-card">
@@ -63,7 +92,7 @@ export function TranslationCard({ result }: TranslationCardProps) {
                 {result.action.urgent && (
                   <Badge variant="destructive" className="gap-1">
                     <AlertTriangle className="w-3 h-3" />
-                    Urgent
+                    {urgentText[language] || urgentText.en}
                   </Badge>
                 )}
               </div>
@@ -75,7 +104,7 @@ export function TranslationCard({ result }: TranslationCardProps) {
           
           <div className="space-y-1">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Confidence</span>
+              <span className="text-gray-400">{t.confidence}</span>
               <span className="font-medium text-white" data-testid="confidence-value">{result.confidence}%</span>
             </div>
             <Progress value={result.confidence} className="h-2" />
@@ -88,7 +117,7 @@ export function TranslationCard({ result }: TranslationCardProps) {
           <CardContent className="pt-4 pb-4">
             <h4 className="font-medium mb-2 flex items-center gap-2 text-white">
               <MessageCircle className="w-4 h-4" />
-              Tips for you
+              {t.tips}
             </h4>
             <ul className="space-y-1">
               {result.tips.map((tip, index) => (
@@ -107,7 +136,7 @@ export function TranslationCard({ result }: TranslationCardProps) {
           <CardContent className="pt-4 pb-4">
             <h4 className="font-medium mb-3 flex items-center gap-2 text-white">
               <ShoppingBag className="w-4 h-4" />
-              Recommended Products
+              {recommendedProductsText[language] || recommendedProductsText.en}
             </h4>
             <div className="space-y-2">
               {result.products.map((product: ProductRecommendation, index: number) => (
