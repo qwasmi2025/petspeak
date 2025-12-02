@@ -1,13 +1,12 @@
 import { useEffect } from "react";
-import { LogOut, Coins } from "lucide-react";
+import { LogOut, User, Mail } from "lucide-react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { format, parseISO } from "date-fns";
 
 export default function Profile() {
   const { user, userProfile, signOut, loading, refreshProfile } = useAuth();
@@ -63,8 +62,8 @@ export default function Profile() {
       <main className="px-4 py-6 max-w-lg mx-auto space-y-6">
         <Card>
           <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center">
-              <Avatar className="w-20 h-20 mb-4">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <Avatar className="w-20 h-20">
                 {userProfile.photoURL && (
                   <AvatarImage src={userProfile.photoURL} alt={userProfile.displayName || "Profile"} />
                 )}
@@ -72,35 +71,28 @@ export default function Profile() {
                   {userProfile.displayName?.charAt(0).toUpperCase() || userProfile.email.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <h2 className="text-xl font-semibold" data-testid="text-username">
-                {userProfile.displayName || "Pet Lover"}
-              </h2>
-              <p className="text-sm text-muted-foreground" data-testid="text-email">
-                {userProfile.email}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Member since {format(parseISO(userProfile.createdAt), "MMMM yyyy")}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Coins className="w-5 h-5 text-primary" />
-              Your Credits
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5">
-              <p className="text-5xl font-bold text-primary" data-testid="text-credits">
-                {userProfile.credits}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">credits remaining</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Each pet sound analysis uses 1 credit
-              </p>
+              
+              <div className="space-y-3 w-full">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  <User className="w-5 h-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <p className="text-xs text-muted-foreground">Name</p>
+                    <p className="font-medium" data-testid="text-username">
+                      {userProfile.displayName || "Pet Lover"}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  <Mail className="w-5 h-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="font-medium" data-testid="text-email">
+                      {userProfile.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
