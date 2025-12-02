@@ -5,21 +5,17 @@ import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { TranslationCard } from "@/components/TranslationCard";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Badge } from "@/components/ui/badge";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/context/AuthContext";
 import { apiRequest } from "@/lib/queryClient";
 import type { AnalyzeResponse, LanguageCode } from "@shared/schema";
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Mic, Coins } from "lucide-react";
+import { RotateCcw, Mic } from "lucide-react";
 
 export default function Home() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [language, setLanguage] = useState<LanguageCode>("en");
   const { toast } = useToast();
-  const { user, userProfile, useCredit, refreshProfile, loading } = useAuth();
   
   const {
     isRecording,
@@ -33,13 +29,6 @@ export default function Home() {
 
   const analyzeMutation = useMutation({
     mutationFn: async (data: { audioData: string; language: LanguageCode }) => {
-      if (user && userProfile) {
-        const success = await useCredit();
-        if (!success) {
-          throw new Error("Could not deduct credit. Please try again.");
-        }
-      }
-      
       const response = await apiRequest("POST", "/api/analyze", data);
       return response as AnalyzeResponse;
     },
@@ -60,31 +49,6 @@ export default function Home() {
     if (isRecording) {
       stopRecording();
     } else {
-      if (user && loading) {
-        toast({
-          title: "Please wait",
-          description: "Loading your account...",
-        });
-        return;
-      }
-      
-      if (user && userProfile && userProfile.credits <= 0) {
-        toast({
-          title: "No credits remaining",
-          description: "You've used all your credits. Contact support for more.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      if (user && !userProfile) {
-        toast({
-          title: "Please wait",
-          description: "Loading your credits...",
-        });
-        return;
-      }
-      
       try {
         setResult(null);
         await startRecording();
@@ -127,37 +91,16 @@ export default function Home() {
     }
   }, [audioBlob, result, analyzeMutation.isPending, language]);
 
-  useEffect(() => {
-    if (user) {
-      refreshProfile();
-    }
-  }, [user]);
-
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen">
       <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
           <h1 className="text-xl font-bold font-serif text-primary">PetSpeak</h1>
-          <div className="flex items-center gap-2">
-            {user && userProfile && (
-              <Badge variant="secondary" className="gap-1" data-testid="badge-credits">
-                <Coins className="w-3 h-3" />
-                {userProfile.credits}
-              </Badge>
-            )}
-            {!user && (
-              <Link href="/login" asChild>
-                <Button variant="ghost" size="sm" data-testid="button-login-header">
-                  Sign In
-                </Button>
-              </Link>
-            )}
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
-      <main className="flex flex-col items-center px-4 pt-8 max-w-lg mx-auto">
+      <main className="flex flex-col items-center px-4 pt-8 pb-8 max-w-lg mx-auto">
         {result ? (
           <div className="w-full space-y-4">
             <TranslationCard result={result} />
@@ -173,19 +116,6 @@ export default function Home() {
                 Record Again
               </Button>
             </div>
-            
-            {!user && (
-              <div className="text-center p-4 rounded-lg glass-card-light">
-                <p className="text-sm text-gray-300 mb-2">
-                  Sign in to get 100 free credits
-                </p>
-                <Link href="/login" asChild>
-                  <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20" data-testid="button-signin-save">
-                    Sign In with Google
-                  </Button>
-                </Link>
-              </div>
-            )}
           </div>
         ) : (
           <>
@@ -232,30 +162,6 @@ export default function Home() {
             <div className="w-full">
               <WaveformVisualizer data={waveformData} isRecording={isRecording} />
             </div>
-
-            {user && userProfile && userProfile.credits <= 0 && (
-              <div className="mt-8 text-center p-4 rounded-lg glass-card-light border border-red-500/20">
-                <p className="text-sm text-red-400 font-medium mb-1">
-                  No credits remaining
-                </p>
-                <p className="text-xs text-gray-400">
-                  Contact support to get more credits
-                </p>
-              </div>
-            )}
-
-            {!user && (
-              <div className="mt-12 text-center p-4 rounded-lg glass-card-light">
-                <p className="text-sm text-gray-300 mb-2">
-                  Sign in to get 100 free credits
-                </p>
-                <Link href="/login" asChild>
-                  <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20" data-testid="button-signin-prompt">
-                    Sign In with Google
-                  </Button>
-                </Link>
-              </div>
-            )}
           </>
         )}
       </main>

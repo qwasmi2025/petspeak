@@ -12,9 +12,8 @@ PetSpeak is a mobile-first web application that uses AI to analyze and interpret
 - AI-powered sound analysis using OpenAI's GPT-4o API
 - Visual feedback with waveform visualization during recording
 - Detailed results including detected needs, confidence scores, and actionable tips
-- Google Sign-in authentication with 100 credits per new user
 - Multi-language support for translations (10 languages)
-- Admin dashboard for system analytics
+- No authentication required - free unlimited use
 
 ## User Preferences
 
