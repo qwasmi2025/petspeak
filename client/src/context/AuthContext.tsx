@@ -41,7 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     } catch (error) {
       console.warn("Could not fetch user profile (offline?):", error);
-      return null;
+      const fallbackProfile: UserProfile = {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || "",
+        displayName: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
+        photoURL: firebaseUser.photoURL || undefined,
+        credits: 100,
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
+      };
+      setUserProfile(fallbackProfile);
+      return fallbackProfile;
     }
   };
 
