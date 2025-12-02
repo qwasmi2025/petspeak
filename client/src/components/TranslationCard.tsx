@@ -42,24 +42,24 @@ export function TranslationCard({ result }: TranslationCardProps) {
 
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-2">
-          <Volume2 className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground" data-testid="original-sound">
+          <Volume2 className="w-4 h-4 text-gray-400" />
+          <span className="text-sm text-gray-400" data-testid="original-sound">
             {result.transcription}
           </span>
         </div>
-        <Badge variant="secondary" className="gap-1" data-testid="mood-badge">
+        <Badge variant="secondary" className="gap-1 bg-white/10 text-white border-white/20" data-testid="mood-badge">
           <span>{result.moodEmoji}</span>
           <span className="capitalize">{result.mood}</span>
         </Badge>
       </div>
 
-      <Card className={result.action.urgent ? "border-destructive bg-destructive/5" : ""}>
+      <Card className={`glass-card ${result.action.urgent ? "border-red-500/30" : ""}`}>
         <CardContent className="pt-4 pb-4">
           <div className="flex items-center gap-3 mb-3">
             <div className="text-2xl">{result.action.icon}</div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold" data-testid="action-title">{result.action.title}</h3>
+                <h3 className="font-semibold text-white" data-testid="action-title">{result.action.title}</h3>
                 {result.action.urgent && (
                   <Badge variant="destructive" className="gap-1">
                     <AlertTriangle className="w-3 h-3" />
@@ -67,7 +67,7 @@ export function TranslationCard({ result }: TranslationCardProps) {
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground" data-testid="action-description">
+              <p className="text-sm text-gray-400" data-testid="action-description">
                 {result.action.description}
               </p>
             </div>
@@ -75,8 +75,8 @@ export function TranslationCard({ result }: TranslationCardProps) {
           
           <div className="space-y-1">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Confidence</span>
-              <span className="font-medium" data-testid="confidence-value">{result.confidence}%</span>
+              <span className="text-gray-400">Confidence</span>
+              <span className="font-medium text-white" data-testid="confidence-value">{result.confidence}%</span>
             </div>
             <Progress value={result.confidence} className="h-2" />
           </div>
@@ -84,15 +84,15 @@ export function TranslationCard({ result }: TranslationCardProps) {
       </Card>
 
       {result.tips.length > 0 && (
-        <Card>
+        <Card className="glass-card">
           <CardContent className="pt-4 pb-4">
-            <h4 className="font-medium mb-2 flex items-center gap-2">
+            <h4 className="font-medium mb-2 flex items-center gap-2 text-white">
               <MessageCircle className="w-4 h-4" />
               Tips for you
             </h4>
             <ul className="space-y-1">
               {result.tips.map((tip, index) => (
-                <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                <li key={index} className="text-sm text-gray-300 flex items-start gap-2">
                   <span className="text-primary">•</span>
                   <span data-testid={`tip-${index}`}>{tip}</span>
                 </li>
@@ -103,9 +103,9 @@ export function TranslationCard({ result }: TranslationCardProps) {
       )}
 
       {result.products && result.products.length > 0 && (
-        <Card className="bg-accent/30 border-accent">
+        <Card className="glass-card border-primary/20">
           <CardContent className="pt-4 pb-4">
-            <h4 className="font-medium mb-3 flex items-center gap-2">
+            <h4 className="font-medium mb-3 flex items-center gap-2 text-white">
               <ShoppingBag className="w-4 h-4" />
               Recommended Products
             </h4>
@@ -113,17 +113,17 @@ export function TranslationCard({ result }: TranslationCardProps) {
               {result.products.map((product: ProductRecommendation, index: number) => (
                 <div 
                   key={index} 
-                  className="flex items-center gap-3 p-2 rounded-lg bg-background/50 hover-elevate cursor-pointer"
+                  className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover-elevate cursor-pointer"
                   data-testid={`product-${index}`}
                 >
                   <div className="text-xl">
                     {categoryIcons[product.category] || "🛒"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{product.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{product.description}</p>
+                    <p className="font-medium text-sm truncate text-white">{product.name}</p>
+                    <p className="text-xs text-gray-400 truncate">{product.description}</p>
                   </div>
-                  <Badge variant="outline" className="shrink-0 text-xs">
+                  <Badge variant="outline" className="shrink-0 text-xs bg-white/10 border-white/20 text-white">
                     {product.category}
                   </Badge>
                 </div>

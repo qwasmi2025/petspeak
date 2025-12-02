@@ -134,8 +134,8 @@ export default function Home() {
   }, [user]);
 
   return (
-    <div className="min-h-screen pb-20 bg-background">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
+    <div className="min-h-screen pb-20">
+      <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
           <h1 className="text-xl font-bold font-serif text-primary">PetSpeak</h1>
           <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function Home() {
             <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
                 onClick={handleRecordAgain}
                 data-testid="button-record-again"
               >
@@ -175,12 +175,12 @@ export default function Home() {
             </div>
             
             {!user && (
-              <div className="text-center p-4 rounded-lg bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-2">
+              <div className="text-center p-4 rounded-lg glass-card-light">
+                <p className="text-sm text-gray-300 mb-2">
                   Sign in to get 100 free credits
                 </p>
                 <Link href="/login" asChild>
-                  <Button variant="outline" size="sm" data-testid="button-signin-save">
+                  <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20" data-testid="button-signin-save">
                     Sign In with Google
                   </Button>
                 </Link>
@@ -190,10 +190,10 @@ export default function Home() {
         ) : (
           <>
             <div className="mb-6 text-center">
-              <h2 className="text-2xl md:text-3xl font-bold font-serif mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold font-serif mb-2 text-white">
                 What does your pet want?
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-gray-400">
                 Tap to record - we'll detect the animal automatically
               </p>
             </div>
@@ -207,7 +207,7 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-center gap-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Mic className="w-4 h-4" />
                 <span>Works with dogs, cats, birds, and more</span>
               </div>
@@ -223,7 +223,7 @@ export default function Home() {
 
             {isRecording && (
               <div className="text-center mb-4">
-                <span className="text-2xl font-mono font-semibold text-destructive">
+                <span className="text-2xl font-mono font-semibold text-red-400">
                   {formatDuration(recordingDuration)}
                 </span>
               </div>
@@ -234,23 +234,23 @@ export default function Home() {
             </div>
 
             {user && userProfile && userProfile.credits <= 0 && (
-              <div className="mt-8 text-center p-4 rounded-lg bg-destructive/10 border border-destructive/20">
-                <p className="text-sm text-destructive font-medium mb-1">
+              <div className="mt-8 text-center p-4 rounded-lg glass-card-light border border-red-500/20">
+                <p className="text-sm text-red-400 font-medium mb-1">
                   No credits remaining
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-400">
                   Contact support to get more credits
                 </p>
               </div>
             )}
 
             {!user && (
-              <div className="mt-12 text-center p-4 rounded-lg bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-2">
+              <div className="mt-12 text-center p-4 rounded-lg glass-card-light">
+                <p className="text-sm text-gray-300 mb-2">
                   Sign in to get 100 free credits
                 </p>
                 <Link href="/login" asChild>
-                  <Button variant="outline" size="sm" data-testid="button-signin-prompt">
+                  <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20" data-testid="button-signin-prompt">
                     Sign In with Google
                   </Button>
                 </Link>

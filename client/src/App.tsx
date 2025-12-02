@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { BottomNav } from "@/components/BottomNav";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Profile from "@/pages/Profile";
@@ -30,7 +31,8 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <TooltipProvider>
-            <div className="pb-16">
+            <AnimatedBackground />
+            <div className="pb-16 relative z-10">
               <Router />
               <BottomNav />
             </div>

@@ -26,7 +26,7 @@ export function LanguageSelector({ value, onChange, disabled }: LanguageSelector
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 value === lang.code
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
+                  : "bg-white/10 text-gray-300 hover:text-white border-white/10"
               )}
             >
               <span className="text-base">{lang.flag}</span>

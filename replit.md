@@ -2,14 +2,15 @@
 
 ## Overview
 
-PetSpeak is a mobile-first web application that uses AI to analyze and interpret animal vocalizations. Users can record their pet's sounds, receive instant AI-powered analysis of what their pet might be communicating, and maintain a history of recordings. The application features a playful, accessible interface inspired by Shazam's simplicity and Spotify's audio visualization.
+PetSpeak is a mobile-first web application that uses AI to analyze and interpret animal vocalizations. Users can record their pet's sounds, receive instant AI-powered analysis of what their pet might be communicating. The application features a futuristic AI-style interface with animated green dots background, glassmorphism cards, and dark theme.
 
 **Core Functionality:**
 - Record pet vocalizations via browser microphone
-- AI-powered sound analysis using OpenAI's API
+- AI-powered sound analysis using OpenAI's GPT-4o API
 - Visual feedback with waveform visualization during recording
 - Detailed results including detected needs, confidence scores, and actionable tips
-- User authentication and recording history
+- Google Sign-in authentication with 100 credits per new user
+- Multi-language support for translations (10 languages)
 - Admin dashboard for system analytics
 
 ## User Preferences
@@ -40,7 +41,9 @@ Preferred communication style: Simple, everyday language.
 - Primary font: Inter (body text, UI elements)
 - Accent font: Outfit (headings, pet-related content)
 - Spacing scale: Tailwind's 2, 4, 8, 12, 16 unit system
-- Color system: HSL-based with semantic color variables
+- Color system: Dark theme with green accent colors
+- Animated background: Floating green dots with connecting lines (AI-style)
+- Glassmorphism: Semi-transparent cards with backdrop blur
 - Custom animations for recording states and transitions
 
 **Audio Handling:**
@@ -82,14 +85,15 @@ Preferred communication style: Simple, everyday language.
 ### External Dependencies
 
 **AI & Machine Learning:**
-- OpenAI API (GPT-5 model) for audio transcription and behavioral analysis
+- OpenAI API (GPT-4o model) for audio transcription and behavioral analysis
 - Custom prompts tailored for different animal types (dogs, cats, birds, etc.)
 - Audio analysis returns: transcription, detected need, confidence score, and care tips
+- Multi-language translation support (English, Arabic, Chinese, Spanish, French, German, Japanese, Korean, Portuguese, Russian)
 
 **Authentication & Database:**
-- Firebase Authentication for user sign-up, sign-in, and session management
-- Firebase Firestore for user profile and metadata storage
-- Firebase Storage configured (ready for audio file storage if needed)
+- Firebase Authentication with Google Sign-in only
+- Firebase Firestore for user profile and credits storage
+- Credits system: 100 credits per new user, 1 credit per analysis
 
 **Frontend Libraries:**
 - Radix UI primitives (@radix-ui/*) for accessible component foundations

@@ -14,7 +14,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-sm border-t border-white/10 safe-area-bottom">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive = location === item.path;
@@ -24,7 +24,7 @@ export function BottomNav() {
               href={item.path}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors hover-elevate",
-                isActive ? "text-primary" : "text-muted-foreground"
+                isActive ? "text-primary" : "text-gray-400"
               )}
               data-testid={`nav-${item.label.toLowerCase()}`}
             >

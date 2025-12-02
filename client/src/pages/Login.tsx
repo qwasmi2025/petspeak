@@ -32,8 +32,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
+    <div className="min-h-screen flex flex-col">
+      <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
           <Link href="/" asChild>
             <Button variant="ghost" size="icon">
@@ -46,20 +46,20 @@ export default function Login() {
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 py-8">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md glass-card">
           <CardHeader className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
               <span className="text-3xl">🐾</span>
             </div>
-            <CardTitle className="text-2xl font-serif">Welcome to PetSpeak</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl font-serif text-white">Welcome to PetSpeak</CardTitle>
+            <CardDescription className="text-gray-300">
               Sign in to get 100 free credits and start translating your pet's sounds
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button 
               variant="outline"
-              className="w-full h-12 text-base gap-3"
+              className="w-full h-12 text-base gap-3 bg-white/10 border-white/20 text-white hover:bg-white/20"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
               data-testid="button-google-signin"
@@ -68,15 +68,15 @@ export default function Login() {
               {isLoading ? "Signing in..." : "Continue with Google"}
             </Button>
             
-            <div className="text-center text-sm text-muted-foreground pt-4">
+            <div className="text-center text-sm text-gray-400 pt-4">
               <p>By signing in, you agree to our</p>
               <p>Terms of Service and Privacy Policy</p>
             </div>
             
-            <div className="border-t pt-4 mt-4">
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className="border-t border-white/10 pt-4 mt-4">
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-300">
                 <span className="text-lg">🎁</span>
-                <span>New users get <strong className="text-foreground">100 free credits</strong></span>
+                <span>New users get <strong className="text-primary">100 free credits</strong></span>
               </div>
             </div>
           </CardContent>

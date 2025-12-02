@@ -42,7 +42,7 @@ export default function Admin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -50,8 +50,8 @@ export default function Admin() {
 
   if (!user || !isAdmin) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
+      <div className="min-h-screen">
+        <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-sm border-b border-white/10">
           <div className="flex items-center justify-between px-4 h-14 max-w-7xl mx-auto">
             <Link href="/" asChild>
               <Button variant="ghost" size="icon">
@@ -89,8 +89,8 @@ export default function Admin() {
   })) : [];
 
   return (
-    <div className="min-h-screen pb-20 bg-background">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
+    <div className="min-h-screen pb-20">
+      <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center justify-between px-4 h-14 max-w-7xl mx-auto">
           <Link href="/" asChild>
             <Button variant="ghost" size="icon">
